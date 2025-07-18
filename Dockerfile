@@ -13,8 +13,5 @@ COPY . .
 
 EXPOSE 8000
 
-# Use environment variable for port, default to 8000
-ENV PORT=8000
-
-# Production command (no reload)
-CMD ["uvicorn", "debater.app:app", "--host", "0.0.0.0", "--port", "8000"]
+# Production command (no reload) - use shell to expand $PORT
+CMD uvicorn debater.app:app --host 0.0.0.0 --port ${PORT:-8000}

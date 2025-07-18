@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     app_name: str = "debater"
     mode: str
     dbpath: str
+    redis_url: str = "redis://localhost:6379"
 
     class Config:
         env_file = f"debater/envs/{getenv('MODE')}.env"

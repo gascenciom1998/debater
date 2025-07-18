@@ -4,7 +4,17 @@ from debater.utils.settings import Settings
 
 class RedisClient:
     def __init__(self, settings: Settings):
-        self.redis = redis.from_url(settings.redis_url, decode_responses=True)
+        # Use SSL for external connections (upstash), not for local
+        if 'upstash.io' in settings.redis_url or settings.redis_url.startswith('rediss://'):
+            self.redis = redis.from_url(
+                settings.redis_url,
+                decode_responses=True,
+                ssl_cert_reqs=None
+            )
+        else:
+            # Local redis without SSL
+            self.redis = redis.from_url(settings.redis_url, decode_responses=True)
+
         self.settings = settings
 
     def health_check(self) -> bool:
@@ -12,7 +22,9 @@ class RedisClient:
         try:
             self.redis.ping()
             return True
-        except redis.ConnectionError:
+        except (redis.ConnectionError, redis.TimeoutError, Exception) as e:
+            # Log the error but don't fail deployment
+            print(f"Redis health check failed: {e}")
             return False
 
     def test_connection(self) -> dict:
@@ -35,5 +47,7 @@ class RedisClient:
             return {
                 "status": "error",
                 "error": str(e),
-                "url": self.settings.redis_url
+                "url": self.settings.redis_url,
+                "url_type": "rediss" if self.settings.redis_url.startswith('rediss://') else "redis",
+                "has_upstash": "upstash.io" in self.settings.redis_url
             }

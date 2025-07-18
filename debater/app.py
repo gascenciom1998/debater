@@ -17,12 +17,20 @@ async def root():
 @app.get("/health")
 async def health_check():
     """Health check endpoint"""
-    redis_healthy = redis_client.health_check()
-    return {
-        "status": "healthy" if redis_healthy else "unhealthy",
-        "redis": "connected" if redis_healthy else "disconnected",
-        "mode": settings.mode
-    }
+    try:
+        redis_healthy = redis_client.health_check()
+        return {
+            "status": "healthy" if redis_healthy else "degraded",
+            "redis": "connected" if redis_healthy else "disconnected",
+            "mode": settings.mode
+        }
+    except Exception as e:
+        return {
+            "status": "degraded",
+            "redis": "error",
+            "mode": settings.mode,
+            "error": str(e)
+        }
 
 
 @app.get("/test-redis")

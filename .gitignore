@@ -26,3 +26,5 @@ env/
 dist
 
 /.mypy_cache/
+
+.env

@@ -10,6 +10,8 @@ services:
       - 8000:8000
     volumes:
       - .:/home/debater
+    env_file:
+      - .env
     environment:
       - MODE=development
       - REDIS_URL=redis://redis:6379
@@ -31,9 +33,12 @@ services:
     entrypoint: pytest
     volumes:
       - .:/home/debater
+    env_file:
+      - .env
     environment:
       - MODE=testing
       - REDIS_URL=redis://redis:6379
+
     profiles:
       - test
     depends_on:

@@ -41,13 +41,9 @@ class RedisClient:
                 "status": "success",
                 "ping": "ok",
                 "set_get": "ok" if value == "test_value" else "failed",
-                "url": self.settings.redis_url
             }
         except Exception as e:
             return {
                 "status": "error",
                 "error": str(e),
-                "url": self.settings.redis_url,
-                "url_type": "rediss" if self.settings.redis_url.startswith('rediss://') else "redis",
-                "has_upstash": "upstash.io" in self.settings.redis_url
             }

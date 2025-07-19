@@ -1,6 +1,5 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing import List, Optional
-from datetime import datetime
 from enum import Enum
 
 
@@ -12,7 +11,6 @@ class Role(str, Enum):
 class Message(BaseModel):
     role: Role
     message: str
-    timestamp: datetime = Field(default_factory=datetime.utcnow)
 
 
 class Conversation(BaseModel):
@@ -20,14 +18,7 @@ class Conversation(BaseModel):
     topic: str
     bot_position: str
     first_message: str
-    messages: List[Message] = Field(default_factory=list)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    last_updated: datetime = Field(default_factory=datetime.utcnow)
-
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat()
-        }
+    messages: List[Message] = []
 
 
 class DebateRequest(BaseModel):

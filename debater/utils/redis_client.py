@@ -4,7 +4,6 @@ import uuid
 from typing import Optional, List
 from debater.utils.settings import Settings
 from debater.models.conversation import Conversation, Message, Role
-from datetime import datetime
 
 
 class RedisClient:
@@ -63,8 +62,7 @@ class RedisClient:
         metadata = {
             "topic": topic,
             "bot_position": bot_position,
-            "first_message": first_message,
-            "created_at": datetime.utcnow().isoformat()
+            "first_message": first_message
         }
         # Store metadata, expire after 24 hours
         self.redis.setex(key, 86400, json.dumps(metadata))
@@ -84,8 +82,7 @@ class RedisClient:
         # Create message object
         message_obj = {
             "role": role.value,
-            "message": message,
-            "timestamp": datetime.utcnow().isoformat()
+            "message": message
         }
 
         # Add to end of list
@@ -112,8 +109,7 @@ class RedisClient:
             msg_dict = json.loads(msg_data)
             messages.append(Message(
                 role=Role(msg_dict["role"]),
-                message=msg_dict["message"],
-                timestamp=datetime.fromisoformat(msg_dict["timestamp"])
+                message=msg_dict["message"]
             ))
 
         return messages

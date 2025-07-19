@@ -9,8 +9,9 @@ class TestHealthEndpoints:
         """Test root endpoint"""
         response = client.get("/")
         assert response.status_code == 200
-        data = response.json()
-        assert "message" in data
+        # Root endpoint now returns HTML, not JSON
+        assert "text/html" in response.headers["content-type"]
+        assert "Debater Bot" in response.text
 
     def test_health_endpoint(self, client):
         """Test health check endpoint"""

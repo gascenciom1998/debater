@@ -27,7 +27,91 @@ if settings.openai_api_key:
 
 @app.get("/")
 async def root():
-    return {"message": f"Hello World, {settings.mode}"}
+    from fastapi.responses import HTMLResponse
+
+    html_content = """
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Debater Bot - Test Chat</title>
+        <style>
+            body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+            .container { background: #f5f5f5; padding: 20px; border-radius: 8px; }
+            input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 4px; }
+            button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+            button:hover { background: #0056b3; }
+            .response { background: white; padding: 15px; margin: 10px 0; border-radius: 4px; border-left: 4px solid #007bff; }
+            .error { border-left-color: #dc3545; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🤖 Debater Bot</h1>
+            <p>Test the debate bot by sending a message. The bot will detect the topic and take the opposite position.</p>
+
+            <form id="chatForm">
+                <label for="message">Your message:</label>
+                <textarea id="message" name="message" rows="3" placeholder="e.g., I think remote work is better than office work" required></textarea>
+
+                <label for="conversationId">Conversation ID (optional):</label>
+                <input type="text" id="conversationId" name="conversationId" placeholder="Leave empty for new conversation">
+
+                <button type="submit">Send Message</button>
+            </form>
+
+            <div id="response"></div>
+        </div>
+
+        <script>
+            document.getElementById('chatForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const message = document.getElementById('message').value;
+                const conversationId = document.getElementById('conversationId').value;
+                const responseDiv = document.getElementById('response');
+
+                responseDiv.innerHTML = '<div class="response">Sending message...</div>';
+
+                try {
+                    const response = await fetch('/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            conversation_id: conversationId || null
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        let messagesHtml = '<h3>Conversation:</h3>';
+                        data.message.forEach(msg => {
+                            const role = msg.role === 'user' ? '👤 You' : '🤖 Bot';
+                            messagesHtml += `<div class="response"><strong>${role}:</strong> ${msg.message}</div>`;
+                        });
+
+                        responseDiv.innerHTML = `
+                            <div class="response">
+                                <strong>Conversation ID:</strong> ${data.conversation_id}<br>
+                                ${messagesHtml}
+                            </div>
+                        `;
+                    } else {
+                        responseDiv.innerHTML = `<div class="response error"><strong>Error:</strong> ${data.detail || 'Unknown error'}</div>`;
+                    }
+                } catch (error) {
+                    responseDiv.innerHTML = `<div class="response error"><strong>Error:</strong> ${error.message}</div>`;
+                }
+            });
+        </script>
+    </body>
+    </html>
+    """
+
+    return HTMLResponse(content=html_content)
 
 
 @app.get("/health")

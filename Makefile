@@ -1,4 +1,4 @@
-.PHONY: help install test run down clean build bash
+.PHONY: help install test run down clean
 
 # Default target - show help
 .DEFAULT_GOAL := help
@@ -10,8 +10,6 @@ help:
 	@echo "  make run      - Run the service and all related services in Docker"
 	@echo "  make down     - Teardown all running services"
 	@echo "  make clean    - Teardown and removal of all containers"
-	@echo "  make build    - Build Docker image"
-	@echo "  make bash     - Open bash shell in container"
 
 # Virtual environment name (can be overridden with VENV_NAME=myenv make install)
 VENV_NAME ?= debater-env
@@ -45,12 +43,9 @@ install: check-docker check-docker-compose
 	@echo "Activating virtual environment and installing requirements..."
 	@. $(VENV_NAME)/bin/activate && pip install --upgrade pip && pip install -r requirements.txt
 	@echo "Installation complete!"
-	@echo "Run 'make build' to build the Docker image."
 	@echo "Run 'source $(VENV_NAME)/bin/activate' to activate the virtual environment."
 
-# Build Docker image
-build: check-docker check-docker-compose
-	$(DOCKER_COMPOSE) build
+
 
 # Run tests
 test: check-docker check-docker-compose
@@ -75,6 +70,4 @@ down: check-docker check-docker-compose
 clean: check-docker check-docker-compose
 	$(DOCKER_COMPOSE) down --rmi all --volumes --remove-orphans
 
-# Open bash shell in container
-bash: check-docker check-docker-compose
-	$(DOCKER_COMPOSE) run --rm --entrypoint=bash app
+

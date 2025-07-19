@@ -7,6 +7,7 @@ from debater.utils.settings import Settings
 from debater.utils.redis_client import RedisClient
 from debater.services.ai_topic_detector import AITopicDetector
 from debater.services.debate_service import DebateService
+from debater.services.persuasiveness_evaluator import PersuasivenessEvaluator
 from debater.models.conversation import DebateRequest, DebateResponse, Message, Role
 
 
@@ -17,9 +18,11 @@ redis_client = RedisClient(settings)
 # Initialize AI services only if API key is available
 topic_detector = None
 debate_service = None
+persuasiveness_evaluator = None
 if settings.openai_api_key:
     topic_detector = AITopicDetector(settings.openai_api_key, settings.ai_model)
     debate_service = DebateService(settings.openai_api_key, settings.ai_model)
+    persuasiveness_evaluator = PersuasivenessEvaluator(settings.openai_api_key, settings.ai_model)
 
 
 @app.get("/")
@@ -195,3 +198,60 @@ async def chat(request: DebateRequest):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Chat error: {str(e)}")
+
+
+@app.get("/evaluate-persuasiveness/{conversation_id}")
+async def evaluate_persuasiveness(conversation_id: str):
+    """
+    Evaluate the persuasiveness of AI responses in a conversation.
+
+    Returns scores and analysis for:
+    - Logical coherence
+    - Evidence usage
+    - Emotional appeal
+    - Counter-argument handling
+    - Clarity and structure
+    - Overall persuasiveness
+    """
+    if not persuasiveness_evaluator:
+        raise HTTPException(
+            status_code=500,
+            detail="OpenAI API key not configured. Set OPENAI_API_KEY environment variable."
+        )
+
+    try:
+        # Get conversation from Redis
+        conversation = redis_client.get_conversation(conversation_id)
+        if not conversation:
+            raise HTTPException(status_code=404, detail="Conversation not found")
+
+        # Convert messages to dict format for evaluation
+        conversation_messages = []
+        for msg in conversation.messages:
+            conversation_messages.append({
+                "role": msg.role.value,
+                "message": msg.message
+            })
+
+        # Evaluate persuasiveness
+        result = persuasiveness_evaluator.evaluate_conversation(
+            conversation_messages=conversation_messages,
+            topic=conversation.topic,
+            bot_position=conversation.bot_position
+        )
+
+        if "error" in result:
+            raise HTTPException(status_code=500, detail=result["error"])
+
+        return {
+            "conversation_id": conversation_id,
+            "topic": conversation.topic,
+            "bot_position": conversation.bot_position,
+            "message_count": len(conversation.messages),
+            "evaluation": result
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Evaluation error: {str(e)}")

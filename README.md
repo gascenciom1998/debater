@@ -67,9 +67,11 @@ make test
 
 Set `OPENAI_API_KEY` in your environment or `.env` file.
 
+**Note:** The app uses `gpt-4-turbo` by default, but you can change the model by setting the `AI_MODEL` environment variable. Ensure the chosen model supports the same JSON response format, especially for topic detection and persuasiveness evaluation.
+
 ## Tech Stack
 
 - FastAPI
-- OpenAI GPT models
+- OpenAI GPT models (gpt-4-turbo by default)
 - Redis (conversation storage)
 - Docker

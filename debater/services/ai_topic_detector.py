@@ -55,22 +55,12 @@ class AITopicDetector:
             }}
             """
 
-            # Try gpt-4 first, fallback to 3.5-turbo
-            try:
-                response = self.client.chat.completions.create(
-                    model="gpt-4",
-                    messages=[{"role": "user", "content": prompt}],
-                    max_tokens=200,
-                    temperature=0.1
-                )
-            except Exception:
-                logger.warning("gpt-4 not available, falling back to gpt-3.5-turbo")
-                response = self.client.chat.completions.create(
-                    model="gpt-3.5-turbo",
-                    messages=[{"role": "user", "content": prompt}],
-                    max_tokens=200,
-                    temperature=0.1
-                )
+            response = self.client.chat.completions.create(
+                model="gpt-4-turbo",
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=200,
+                temperature=0.1
+            )
 
             content = response.choices[0].message.content.strip()
             logger.info(f"AI response: {content}")

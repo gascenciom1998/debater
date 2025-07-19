@@ -18,8 +18,8 @@ redis_client = RedisClient(settings)
 topic_detector = None
 debate_service = None
 if settings.openai_api_key:
-    topic_detector = AITopicDetector(settings.openai_api_key)
-    debate_service = DebateService(settings.openai_api_key)
+    topic_detector = AITopicDetector(settings.openai_api_key, settings.ai_model)
+    debate_service = DebateService(settings.openai_api_key, settings.ai_model)
 
 
 @app.get("/")
@@ -35,13 +35,17 @@ async def health_check():
         return {
             "status": "healthy" if redis_healthy else "degraded",
             "redis": "connected" if redis_healthy else "disconnected",
-            "mode": settings.mode
+            "mode": settings.mode,
+            "ai_model": settings.ai_model,
+            "ai_available": debate_service is not None
         }
     except Exception as e:
         return {
             "status": "degraded",
             "redis": "error",
             "mode": settings.mode,
+            "ai_model": settings.ai_model,
+            "ai_available": debate_service is not None,
             "error": str(e)
         }
 

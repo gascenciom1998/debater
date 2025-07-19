@@ -9,10 +9,11 @@ logger = logging.getLogger(__name__)
 class AITopicDetector:
     """AI-powered topic and position detection using OpenAI"""
 
-    def __init__(self, api_key: str = None):
+    def __init__(self, api_key: str = None, model: str = "gpt-4-turbo"):
         if not api_key:
             raise ValueError("OpenAI API key is required")
         self.client = OpenAI(api_key=api_key)
+        self.model = model
 
     def detect_topic_and_position(self, message: str) -> Tuple[str, str, str]:
         """
@@ -56,7 +57,7 @@ class AITopicDetector:
             """
 
             response = self.client.chat.completions.create(
-                model="gpt-4-turbo",
+                model=self.model,
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=200,
                 temperature=0.1

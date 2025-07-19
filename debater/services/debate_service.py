@@ -9,10 +9,11 @@ logger = logging.getLogger(__name__)
 class DebateService:
     """AI-powered debate response generation that stands its ground and persuades"""
 
-    def __init__(self, api_key: str = None):
+    def __init__(self, api_key: str = None, model: str = "gpt-4-turbo"):
         if not api_key:
             raise ValueError("OpenAI API key is required")
         self.client = OpenAI(api_key=api_key)
+        self.model = model
 
     def generate_debate_response(
         self,
@@ -80,7 +81,7 @@ class DebateService:
             """
 
             response = self.client.chat.completions.create(
-                model="gpt-4-turbo",
+                model=self.model,
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=300,
                 temperature=0.7
@@ -133,7 +134,7 @@ class DebateService:
             """
 
             response = self.client.chat.completions.create(
-                model="gpt-4-turbo",
+                model=self.model,
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=200,
                 temperature=0.7

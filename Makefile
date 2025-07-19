@@ -54,7 +54,14 @@ build: check-docker check-docker-compose
 
 # Run tests
 test: check-docker check-docker-compose
-	$(DOCKER_COMPOSE) run --rm --profile test test
+	@echo "Running tests..."
+	@if [ -d "$(VENV_NAME)" ]; then \
+		echo "Running tests in virtual environment..."; \
+		. $(VENV_NAME)/bin/activate && python -m pytest tests/ -v; \
+	else \
+		echo "Running tests in Docker..."; \
+		$(DOCKER_COMPOSE) run --rm --profile test test; \
+	fi
 
 # Run the service and all related services
 run: check-docker check-docker-compose

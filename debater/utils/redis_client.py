@@ -26,7 +26,7 @@ class RedisClient:
         try:
             self.redis.ping()
             return True
-        except (redis.ConnectionError, redis.TimeoutError, Exception) as e:
+        except Exception as e:
             # Log the error but don't fail deployment
             print(f"Redis health check failed: {e}")
             return False

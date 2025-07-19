@@ -37,4 +37,4 @@ class DebateRequest(BaseModel):
 
 class DebateResponse(BaseModel):
     conversation_id: str
-    messages: List[Message]
+    message: List[Message]  # Challenge requires "message" not "messages"

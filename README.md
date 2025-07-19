@@ -10,9 +10,6 @@ make install
 
 # Start the service
 make run
-
-# Or run manually
-docker run -p 8000:8000 debater
 ```
 
 ## API Endpoints
@@ -64,11 +61,6 @@ Plus detailed analysis and improvement suggestions.
 ```bash
 # Run all tests
 make test
-
-# Test the chat endpoint
-curl -X POST "http://localhost:8000/chat" \
-  -H "Content-Type: application/json" \
-  -d '{"message": "Test message"}'
 ```
 
 ## Environment

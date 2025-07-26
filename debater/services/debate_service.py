@@ -81,15 +81,13 @@ class DebateService:
             """
 
             response = self.client.chat.completions.create(
-                model=self.model,
+            model=self.model,
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=300,
                 temperature=0.7
             )
 
             content = response.choices[0].message.content.strip()
-            logger.info(f"Generated debate response: {content[:100]}...")
-
             return content
 
         except Exception as e:
@@ -134,7 +132,7 @@ class DebateService:
             """
 
             response = self.client.chat.completions.create(
-                model=self.model,
+            model=self.model,
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=200,
                 temperature=0.7
